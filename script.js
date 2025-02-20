@@ -1,6 +1,6 @@
 const canvas = document.getElementById('JogoCanvas');
 const ctx = canvas.getContext('2d');
-let gravidade = 0.5
+let gravidade = 0.65;
 
 document.addEventListener("click", (e) => {
     if(gameOver==true){
@@ -16,6 +16,7 @@ document.addEventListener('keypress', (e) => {
 });
 
 let gameOver = false;
+let pontuacao = 0;
 
 const personagem = {
     posx:50,
@@ -27,50 +28,48 @@ const personagem = {
 }
 
 function desenhaPersonagem(){
-    ctx.fillStyle = 'blue'
+    ctx.fillStyle = 'blue';
     ctx.fillRect(personagem.posx,
         personagem.posy,
         personagem.largura,
-        personagem.altura)
+        personagem.altura);
 }
 
 function atualizaPersonagem(){
     if(personagem.pulando == true){
-        personagem.velocidadey += gravidade 
-        personagem.posicaoy += personagem.velocidadey
+        personagem.velocidadey += gravidade; 
+        personagem.posicaoy += personagem.velocidadey;
         personagem.posy += personagem.velocidadey;
-        if(personagem.posicaoy>=canvas.height-50){
-            personagem.velocidadey = 0
-            personagem.pulando=false
+        if(personagem.posicaoy >= canvas.height-50){
+            personagem.velocidadey = 0;
+            personagem.pulando = false;
         }
     }
 }
-function teste(){
 
-}
 const obstaculo = {
-    posx:canvas.width-100,
-    posy:canvas.height-100,
-    tamx:50,
-    tamy:100,
-    velocidade:10
-}
+    posx: canvas.width-100,
+    posy: canvas.height-100,
+    tamx: 50,
+    tamy: 100,
+    velocidade: 6.5
+};
 
 function desenhaObstaculo(){
-    ctx.fillStyle = 'red'
-    ctx.fillRect(
-        obstaculo.posx,
-        obstaculo.posy,
-        obstaculo.tamx,
-        obstaculo.tamy
-    )
+    ctx.fillStyle = 'red';
+    ctx.fillRect(obstaculo.posx, obstaculo.posy, obstaculo.tamx, obstaculo.tamy);
 }
 
 function atualizaObstaculo() {
     obstaculo.posx -= obstaculo.velocidade;
-    if (obstaculo.posx <= 0 - obstaculo.tamx) {  
+    
+    if(obstaculo.posx <= 0 - obstaculo.tamx) {
         obstaculo.posx = canvas.width - 100;
-        obstaculo.velocidade += 1;
+        let altura_random = (Math.random() * 50) + 90;
+        obstaculo.tamy = altura_random;
+        obstaculo.posy = canvas.height - altura_random;
+        obstaculo.velocidade += 0.5;
+        pontuacao += 10;
     }
 }
 
@@ -82,7 +81,6 @@ function verificaPosicaoChao() {
     }
 }
 
-
 function verificaColisao() {
     if (
         personagem.posx < obstaculo.posx + obstaculo.tamx &&
@@ -90,7 +88,7 @@ function verificaColisao() {
         personagem.posy < obstaculo.posy + obstaculo.tamy &&
         personagem.posy + personagem.altura > obstaculo.posy
     ) {
-        houveColisao()
+        houveColisao();
     }
 }
 
@@ -107,18 +105,25 @@ function houveColisao(){
     const texto = "GAME OVER";
     const textoWidth = ctx.measureText(texto).width;
     ctx.fillText(texto, (canvas.width / 2) - (textoWidth / 2), (canvas.height / 2) + 20);
-    gameOver = true;    
+    gameOver = true;
+}
+
+function desenhaPontuacao() {
+    ctx.fillStyle = 'black';
+    ctx.font = '30px Arial';
+    ctx.fillText('Pontuação: ' + pontuacao, 20, 40);
 }
 
 function loop(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    desenhaObstaculo()
-    atualizaPersonagem()
-    verificaPosicaoChao()
-    desenhaPersonagem()
-    atualizaObstaculo()
-    verificaColisao()
-    requestAnimationFrame(loop)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    desenhaObstaculo();
+    atualizaPersonagem();
+    verificaPosicaoChao();
+    desenhaPersonagem();
+    atualizaObstaculo();
+    verificaColisao();
+    desenhaPontuacao();
+    requestAnimationFrame(loop);
 }
 
-loop()
+loop();
